@@ -1,0 +1,31 @@
+# Entornos virtuales
+venv/
+.env/
+*.env
+
+# Dependencias instaladas
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Configuración de editores
+.vscode/
+.idea/
+*.iml
+
+# Archivos de logs y reportes
+test-reports/
+logs/
+*.log
+allure-results/
+pytest_html_report.html
+
+# Configuración de pytest y caché de pruebas
+.cache/
+.pytest_cache/
+
+# Archivos temporales
+*.swp
+*.swo
+.DS_Store
