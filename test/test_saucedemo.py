@@ -85,8 +85,6 @@ class TestSauceDemo:
         # Productos esperados
         expected_products = [
             (producto["display_name"], producto["price"]) for producto in data["productos"]
-            # ("Test.allTheThings() T-Shirt (Red)", "$15.99"),
-            # ("Sauce Labs Bike Light", "$9.99")
         ]
         # Comparación de listas
         assert cart_products == expected_products, f"Productos en el carrito incorrectos: {cart_products}"
