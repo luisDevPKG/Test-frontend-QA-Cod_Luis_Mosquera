@@ -10,7 +10,6 @@ class InventoryPage:
             'bike_light': '//*[@id="add-to-cart-sauce-labs-bike-light"]'
         }
         self.cart_count = '//*[@id="shopping_cart_container"]/a/span'
-        self.cart_button ='//*[@id="shopping_cart_container"]/a'
 
     # Agrega productos al carrito
     def agregar_productos_al_carrito(self, product_name: str):
@@ -20,7 +19,3 @@ class InventoryPage:
     # Obtener el conteo de productos en el carro
     def obtener_el_conteo_carrito(self):
         return self.page.inner_text(self.cart_count)
-
-    # Ir al carro
-    def ir_al_carrito(self):
-        self.page.click(self.cart_button)
