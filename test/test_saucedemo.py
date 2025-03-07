@@ -1,10 +1,21 @@
 import pytest
+import json
+import os
+
+
 from playwright.sync_api import sync_playwright
 from pages.login_page import LoginPage
 from pages.inventory_page import InventoryPage
 from pages.cart_page import CartPage
+from pages.checkout_page import CheckoutPage
 
 class TestSauceDemo:
+
+    # Cargar datos desde el archivo JSON
+    def cargar_datos(self):
+        ruta_archivo = os.path.join(os.path.dirname(__file__), "..", "utils", "data.json")
+        with open(ruta_archivo, "r") as file:
+            return json.load(file)
 
     @pytest.fixture(scope="class")
     def browser(self):
@@ -17,24 +28,28 @@ class TestSauceDemo:
     # Inicio de sesion y retorno la pagina autenticada
     @pytest.fixture(scope="class")
     def login(self, browser):
+        data = self.cargar_datos()
         page = browser
         page.goto("https://www.saucedemo.com/")
 
         # Intancio el modelo de la pagina de login
         login_page = LoginPage(page)
-        login_page.login("standard_user", "secret_sauce")
+        login_page.login(data["login"]["username"],data["login"]["password"])
 
         # Esperar la redirección al inventario
         page.wait_for_selector(".inventory_list")
         return page
 
+    # Agregar productos al carrito
     @pytest.fixture(scope="class")
     def agregar_productos (self, login):
+        data = self.cargar_datos()
         page = login
-        # Agregar productos al carrito
+
         inventory_page = InventoryPage(page)
-        inventory_page.agregar_productos_al_carrito('red_tshirt')
-        inventory_page.agregar_productos_al_carrito('bike_light')
+        # Agregar productos al carrito
+        for producto in data["productos"]:
+            inventory_page.agregar_productos_al_carrito(producto["name"])
 
         return inventory_page
 
@@ -55,22 +70,52 @@ class TestSauceDemo:
 
     # Caso 3: Validar carrito compras
     def test_validar_carrito_compras(self, login, agregar_productos):
+        data = self.cargar_datos()
         page = login
-        inventory_page = agregar_productos
+        cart_page = CartPage(page)
 
         # Ir al carrito
-        inventory_page.ir_al_carrito()
+        cart_page.ir_al_carrito()
         page.wait_for_selector(".cart_list")
 
         # Verificar productos en el carrito
-        cart_page = CartPage(page)
         cart_products = cart_page.obtener_informacion_productos()
         print(cart_products)
 
         # Productos esperados
         expected_products = [
-            ("Test.allTheThings() T-Shirt (Red)", "$15.99"),
-            ("Sauce Labs Bike Light", "$9.99")
+            (producto["display_name"], producto["price"]) for producto in data["productos"]
+            # ("Test.allTheThings() T-Shirt (Red)", "$15.99"),
+            # ("Sauce Labs Bike Light", "$9.99")
         ]
         # Comparación de listas
         assert cart_products == expected_products, f"Productos en el carrito incorrectos: {cart_products}"
+
+    # Caso 4: Checkout y finalizar pedido
+    def test_validar_checkout(self, login, agregar_productos):
+        data = self.cargar_datos()
+        page = login
+        cart_page = CartPage(page)
+        checkout_page = CheckoutPage(page)
+
+        # Ir al carrito
+        cart_page.ir_al_carrito()
+        page.wait_for_selector(".cart_list")
+
+        # Proceder al checkout
+        checkout_page.redirigir_checkout()
+        checkout_page.formulario_checkout(data["checkout"]["first_name"], data["checkout"]["last_name"], data["checkout"]["postal_code"])
+
+        # Obtener valores del resumen
+        subtotal, tax, total = checkout_page.resumen_pedido()
+
+        # Verifico informacion del pedido
+        assert subtotal == data["checkout"]["expected_summary"]["subtotal"], f"Subtotal incorrecto: {subtotal}"
+        assert tax == data["checkout"]["expected_summary"]["tax"], f"Impuesto incorrecto: {tax}"
+        assert total == data["checkout"]["expected_summary"]["total"], f"Total incorrecto: {total}"
+
+        checkout_page.completar_compra()
+
+        # Obtener y verificar mensaje de confirmación
+        confirmation_message = checkout_page.confirmacion_compra()
+        assert confirmation_message == data["checkout"]["confirmation_message"], f"Ha ocurrido un error, Mensaje incorrecto: {confirmation_message}"

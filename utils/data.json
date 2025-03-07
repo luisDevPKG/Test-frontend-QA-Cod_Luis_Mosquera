@@ -1,0 +1,29 @@
+{
+  "login": {
+    "username": "standard_user",
+    "password": "secret_sauce"
+  },
+  "productos": [
+    {
+      "name": "red_tshirt",
+      "display_name": "Test.allTheThings() T-Shirt (Red)",
+      "price": "$15.99"
+    },
+    {
+      "name": "bike_light",
+      "display_name": "Sauce Labs Bike Light",
+      "price": "$9.99"
+    }
+  ],
+  "checkout": {
+    "first_name": "Luis",
+    "last_name": "QA",
+    "postal_code": "434636",
+    "expected_summary": {
+      "subtotal": "Item total: $25.98",
+      "tax": "Tax: $2.08",
+      "total": "Total: $28.06"
+    },
+    "confirmation_message": "Thank you for your order!"
+  }
+}
