@@ -13,14 +13,14 @@ class InventoryPage:
         self.cart_button ='//*[@id="shopping_cart_container"]/a'
 
     # Agrega productos al carrito
-    def add_product_to_cart(self, product_name: str):
+    def agregar_productos_al_carrito(self, product_name: str):
         product_selector = self.products[product_name]
         self.page.click(product_selector)
 
     # Obtener el conteo de productos en el carro
-    def get_cart_count(self):
+    def obtener_el_conteo_carrito(self):
         return self.page.inner_text(self.cart_count)
 
     # Ir al carro
-    def go_to_cart(self):
+    def ir_al_carrito(self):
         self.page.click(self.cart_button)
