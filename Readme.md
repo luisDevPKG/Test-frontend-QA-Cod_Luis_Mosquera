@@ -1,4 +1,4 @@
-# Automatización - Prueba Test-Backend-Cod
+# Automatización - Prueba Test-Frontend-Cod
 Test-Backend-Cod
 
 # Como clonar el repositorio
